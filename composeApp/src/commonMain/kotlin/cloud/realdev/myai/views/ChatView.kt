@@ -30,10 +30,13 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -176,8 +179,25 @@ fun SentenceView(text: String, sendingRequest: Boolean, clipboardManager: Clipbo
 
 @Composable
 fun DiscussionResult(discussionResult: DiscussionResult, clipboardManager: ClipboardManager) {
+    val scrollState = rememberScrollState()
+
+    var autoScrollEnabled by remember { mutableStateOf(false) }
+
+    LaunchedEffect(scrollState.maxValue) {
+        //Scroll automatiquement vers le bas
+        if(autoScrollEnabled) {
+            scrollState.scrollTo(scrollState.maxValue)
+        }
+    }
+
+    // Observer la position de scroll pour savoir si l'utilisateur est en bas
+    LaunchedEffect(scrollState.value) {
+        val threshold = 20 // tolérance en pixels pour considérer qu'on est "en bas"
+        autoScrollEnabled = scrollState.maxValue - scrollState.value <= threshold
+    }
+
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-        Column(modifier = Modifier.weight(3f).fillMaxSize().border(1.dp, color = Color.Black, shape = RoundedCornerShape(8.dp)).padding(16.dp).verticalScroll(rememberScrollState())) {
+        Column(modifier = Modifier.weight(3f).fillMaxSize().border(1.dp, color = Color.Black, shape = RoundedCornerShape(8.dp)).padding(16.dp).verticalScroll(scrollState)) {
             Text(discussionResult.response)
         }
         Box(modifier = Modifier.weight(1f).wrapContentHeight(align = Alignment.CenterVertically)) {
