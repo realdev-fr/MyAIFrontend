@@ -59,6 +59,8 @@ class DiscussionViewModel: ViewModel() {
             return
         }
 
+        _discussionResult.value = null
+
         _sendingRequest.value = true
 
         try {
