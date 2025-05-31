@@ -163,7 +163,7 @@ fun TranslationsView(backStack: NavBackStack) {
 @Composable
 fun TranslateView(text: String, sendingRequest: Boolean, clipboardManager: ClipboardManager, translationResult: TranslationResult?, onTextChanged: (String) -> Unit, onTranslate: () -> Unit) {
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-        if(translationResult != null && translationResult.correction.isNotEmpty() && translationResult.correction != text && translationResult.correction != "---") {
+        if(translationResult != null && translationResult.correction != null && translationResult.correction.isNotEmpty() && translationResult.correction != text && translationResult.correction != "---") {
             Box(modifier = Modifier.padding(5.dp)) {
                 Text("Correction: " + translationResult.correction)
             }
@@ -218,7 +218,7 @@ fun TranslateResult(translationResult: TranslationResult, clipboardManager: Clip
                 Text(text = "Explication")
             },
             text = {
-                Text(text = translationResult.explanation)
+                Text(text = translationResult.explanation?:"")
             },
             onDismissRequest = {
                 showExplanation = false

@@ -4,8 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TranslationResult(
-    val translation: String,
-    val language: Languages,
-    val explanation: String,
-    val correction: String
+    val translation: String = "",
+    val language: String? = null,
+    val explanation: String? = null,
+    val correction: String? = null
 )
