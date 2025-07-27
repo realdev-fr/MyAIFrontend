@@ -66,7 +66,7 @@ class DiscussionViewModel: ViewModel() {
         try {
             viewModelScope.launch {
                 try {
-                    val httpStatement: HttpStatement = client.preparePost("http://192.168.1.25:8000/discuss") {
+                    val httpStatement: HttpStatement = client.preparePost("http://192.168.1.21:9000/discuss") {
                         contentType(ContentType.Application.Json)
                         accept(ContentType.Text.EventStream)
                         setBody(_discussionRequest.value)

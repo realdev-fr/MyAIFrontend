@@ -25,6 +25,7 @@ fun HomeView(backStack: NavBackStack) {
         Column(modifier = Modifier.padding(it)) {
             IconMenuItem(backStack, "Translate", Screen.Translate)
             IconMenuItem(backStack, "Chat", Screen.Chat)
+            IconMenuItem(backStack, "Speak", Screen.Speak)
         }
     }
 }
