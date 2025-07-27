@@ -20,11 +20,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -32,10 +30,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -56,16 +51,13 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavBackStack
 import cloud.realdev.myai.models.discuss.DiscussionResult
 import cloud.realdev.myai.models.navigation.Screen
 import cloud.realdev.myai.views.utils.clipboard.copyToClipboard
-import cloud.realdev.myai.views.viewmodels.DiscussionViewModel
 import cloud.realdev.myai.views.viewmodels.SpeakViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -185,12 +177,12 @@ fun SpeakResult(discussionResult: DiscussionResult, clipboardManager: ClipboardM
 
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         Column(modifier = Modifier.weight(3f).fillMaxSize().border(1.dp, color = Color.Black, shape = RoundedCornerShape(8.dp)).padding(16.dp).verticalScroll(scrollState)) {
-            Text(discussionResult.response)
+            Text(discussionResult.content?:"")
         }
         Box(modifier = Modifier.weight(1f).wrapContentHeight(align = Alignment.CenterVertically)) {
             Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
                 TextButton(onClick = {
-                    copyToClipboard(clipboardManager, discussionResult.response)
+                    copyToClipboard(clipboardManager, discussionResult.content?:"")
                 }) {
                     Text("Copy to clipboard")
                 }

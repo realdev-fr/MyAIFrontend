@@ -28,6 +28,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -45,6 +46,7 @@ import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -66,6 +68,7 @@ fun ChatView(backStack: NavBackStack) {
     val discussionRequest by viewModel.discussionRequest.collectAsState()
     val discussionResult by viewModel.discussionResult.collectAsState()
     val sendingRequest by viewModel.sendingRequest.collectAsState()
+    val isStreaming by viewModel.stream.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -111,6 +114,19 @@ fun ChatView(backStack: NavBackStack) {
         Column(modifier = Modifier.padding(it).clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) {
             hideKeyboard()
         }) {
+            Box(modifier = Modifier.weight(0.5f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Reflexion", modifier = Modifier.padding(8.dp), style = TextStyle(color = Color.Black))
+                    Switch(
+                        checked = isStreaming,
+                        onCheckedChange = {
+                            viewModel.toggleStream()
+                        },
+                        modifier = Modifier.padding(8.dp)
+                    )
+                    Text("Stream", modifier = Modifier.padding(8.dp), style = TextStyle(color = Color.Black))
+                }
+            }
             Box(modifier = Modifier.weight(5f).fillMaxWidth().padding(16.dp).border(1.dp, color = Color.Black, shape = RoundedCornerShape(8.dp)).padding(16.dp)) {
                 SentenceView(discussionRequest.text, sendingRequest, clipboardManager, onTextChanged = {
                     viewModel.setText(it)
@@ -201,12 +217,12 @@ fun DiscussionResult(discussionResult: DiscussionResult, clipboardManager: Clipb
 
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         Column(modifier = Modifier.weight(3f).fillMaxSize().border(1.dp, color = Color.Black, shape = RoundedCornerShape(8.dp)).padding(16.dp).verticalScroll(scrollState)) {
-            Text(discussionResult.response)
+            Text(discussionResult.content?:"")
         }
         Box(modifier = Modifier.weight(1f).wrapContentHeight(align = Alignment.CenterVertically)) {
             Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
                 TextButton(onClick = {
-                    copyToClipboard(clipboardManager, discussionResult.response)
+                    copyToClipboard(clipboardManager, discussionResult.content?:"")
                 }) {
                     Text("Copy to clipboard")
                 }
