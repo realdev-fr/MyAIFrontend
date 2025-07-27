@@ -92,7 +92,7 @@ fun SpeakView(backStack: NavBackStack, activityContext: ComponentActivity, onReq
                 },
                 navigationIcon = {
                     IconButton(onClick = {
-                        backStack.remove(Screen.Chat)
+                        backStack.remove(Screen.Speak)
                     }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
