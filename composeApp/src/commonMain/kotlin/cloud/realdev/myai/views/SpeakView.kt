@@ -1,8 +1,10 @@
 package cloud.realdev.myai.views
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.speech.tts.TextToSpeech
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -58,6 +60,7 @@ import cloud.realdev.myai.models.discuss.DiscussionResult
 import cloud.realdev.myai.models.navigation.Screen
 import cloud.realdev.myai.views.utils.clipboard.copyToClipboard
 import cloud.realdev.myai.views.viewmodels.SpeakViewModel
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,7 +113,7 @@ fun SpeakView(backStack: NavBackStack, activityContext: ComponentActivity, onReq
                 if(discussionResult == null) {
                     return@Box
                 }
-                SpeakResult(discussionResult!!, clipboardManager, viewModel)
+                SpeakResult(discussionResult!!, clipboardManager, viewModel, activityContext)
             }
         }
     }
@@ -157,11 +160,10 @@ fun UserSpeakView(isRecording: Boolean, viewModel: SpeakViewModel, applicationCo
 }
 
 @Composable
-fun SpeakResult(discussionResult: DiscussionResult, clipboardManager: ClipboardManager, viewModel: SpeakViewModel) {
+fun SpeakResult(discussionResult: DiscussionResult, clipboardManager: ClipboardManager, viewModel: SpeakViewModel, applicationContext: Context) {
     val scrollState = rememberScrollState()
 
     var autoScrollEnabled by remember { mutableStateOf(false) }
-
     LaunchedEffect(scrollState.maxValue) {
         //Scroll automatiquement vers le bas
         if(autoScrollEnabled) {
@@ -191,6 +193,21 @@ fun SpeakResult(discussionResult: DiscussionResult, clipboardManager: ClipboardM
                     viewModel.clear()
                 }) {
                     Text("Clean text")
+                }
+
+                TextButton(onClick = {
+                    var tts: TextToSpeech? = null
+
+                    tts = TextToSpeech(applicationContext) { status ->
+                        if (status == TextToSpeech.SUCCESS) {
+                            tts?.language = Locale.getDefault()
+                            tts?.speak(discussionResult.content, TextToSpeech.QUEUE_FLUSH, null, null)
+                        }
+                    }
+
+
+                }) {
+                    Text("Text to speech")
                 }
             }
         }
