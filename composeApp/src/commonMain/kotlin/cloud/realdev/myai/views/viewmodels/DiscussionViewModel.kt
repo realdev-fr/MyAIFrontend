@@ -1,9 +1,14 @@
 package cloud.realdev.myai.views.viewmodels
 
+import android.app.Application
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cloud.realdev.myai.models.discuss.DiscussionRequest
 import cloud.realdev.myai.models.discuss.DiscussionResult
+import com.google.mediapipe.tasks.genai.llminference.LlmInference
+import com.google.mediapipe.tasks.genai.llminference.ProgressListener
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
@@ -19,13 +24,15 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.InternalAPI
 import io.ktor.utils.io.readUTF8Line
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-class DiscussionViewModel: ViewModel() {
+class DiscussionViewModel(application: Application, val isLocal: Boolean = false): AndroidViewModel(application) {
 
     private val _discussionRequest = MutableStateFlow(DiscussionRequest())
     val discussionRequest: StateFlow<DiscussionRequest> = _discussionRequest.asStateFlow()
@@ -36,8 +43,33 @@ class DiscussionViewModel: ViewModel() {
     private val _stream = MutableStateFlow(true)
     val stream: StateFlow<Boolean> = _stream.asStateFlow()
 
+    private val _reflexion = MutableStateFlow(true)
+    val reflexion: StateFlow<Boolean> = _reflexion.asStateFlow()
+
     private val _sendingRequest = MutableStateFlow(false)
     val sendingRequest: StateFlow<Boolean> = _sendingRequest.asStateFlow()
+
+    private var _llmInference: LlmInference? = null
+
+
+    init {
+        setupModel()
+    }
+
+    fun setupModel() {
+        if(isLocal) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val context = getApplication<Application>().applicationContext
+
+                val taskOptions = LlmInference.LlmInferenceOptions.builder()
+                    .setModelPath(if(_reflexion.value) "/data/local/tmp/llm/model_version.task" else "/data/local/tmp/llm/model_version.bin")
+                    .setMaxTopK(64)
+                    .build()
+
+                _llmInference = LlmInference.createFromOptions(context, taskOptions)
+            }
+        }
+    }
 
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
@@ -58,6 +90,37 @@ class DiscussionViewModel: ViewModel() {
         _stream.value = !_stream.value
     }
 
+    fun toggleReflexion() {
+        _reflexion.value = !_reflexion.value
+        setupModel()
+    }
+
+
+    fun discussLocal(stream : Boolean) {
+        if(_llmInference == null) {
+            return
+        }
+
+        _discussionResult.value = null
+
+        if(stream) {
+            _llmInference?.generateResponseAsync(_discussionRequest.value.text
+            ) { partialResult, done ->
+                viewModelScope.launch {
+                    _discussionResult.value = _discussionResult.value?.copy(content = ((_discussionResult.value?.content ?: "") + partialResult)) ?: DiscussionResult(content = partialResult)
+                }
+            }
+        }
+
+        else {
+            viewModelScope.launch {
+                val result = withContext(Dispatchers.IO) {
+                    _llmInference!!.generateResponse(_discussionRequest.value.text)
+                }
+                _discussionResult.value = _discussionResult.value?.copy(content = result) ?: DiscussionResult(content = result)
+            }
+        }
+    }
 
     @OptIn(InternalAPI::class)
     fun discuss(onError: () -> Unit) {

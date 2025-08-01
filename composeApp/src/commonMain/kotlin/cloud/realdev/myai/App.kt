@@ -8,10 +8,13 @@ import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.entry
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSavedStateNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import androidx.navigation3.ui.rememberSceneSetupNavEntryDecorator
 import cloud.realdev.myai.models.navigation.Screen
 import cloud.realdev.myai.views.ChatView
 import cloud.realdev.myai.views.HomeView
+import cloud.realdev.myai.views.LocalChatView
 import cloud.realdev.myai.views.SpeakView
 import cloud.realdev.myai.views.TranslationsView
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -34,6 +37,10 @@ fun App(activityContext: ComponentActivity, onRequestPermission: () -> Unit) {
                 }
                 entry<Screen.Chat> {
                     ChatView(backStack = backStack)
+                }
+
+                entry<Screen.LocalChat> {
+                    LocalChatView(backStack = backStack)
                 }
 
                 entry<Screen.Speak> {
