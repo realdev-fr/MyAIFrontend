@@ -64,6 +64,7 @@ class DiscussionViewModel(application: Application, val isLocal: Boolean = false
                 val taskOptions = LlmInference.LlmInferenceOptions.builder()
                     .setModelPath(if(_reflexion.value) "/data/local/tmp/llm/model_version.task" else "/data/local/tmp/llm/model_version.bin")
                     .setMaxTopK(64)
+                    .setMaxTokens(2048) //Nombre maximal de jetons (jetons d'entrée + jetons de sortie) gérés par le modèle.
                     .build()
 
                 _llmInference = LlmInference.createFromOptions(context, taskOptions)
@@ -193,7 +194,9 @@ class DiscussionViewModel(application: Application, val isLocal: Boolean = false
     }
 
     override fun onCleared() {
+        println("onCleared")
         client.close()
+        _llmInference?.close()
         super.onCleared()
     }
 }

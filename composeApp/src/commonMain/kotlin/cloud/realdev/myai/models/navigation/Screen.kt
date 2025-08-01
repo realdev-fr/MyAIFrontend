@@ -10,6 +10,8 @@ sealed class Screen: NavKey {
     data object Translate : Screen()
     @Serializable
     data object Chat : Screen()
+
+    @Serializable
     data object LocalChat : Screen()
     @Serializable
     data object Speak : Screen()
