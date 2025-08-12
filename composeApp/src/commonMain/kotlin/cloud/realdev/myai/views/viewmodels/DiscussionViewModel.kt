@@ -31,6 +31,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.io.File
+import java.lang.Thread.sleep
 
 class DiscussionViewModel(application: Application, val isLocal: Boolean = false): AndroidViewModel(application) {
 
@@ -60,9 +62,15 @@ class DiscussionViewModel(application: Application, val isLocal: Boolean = false
         if(isLocal) {
             viewModelScope.launch(Dispatchers.IO) {
                 val context = getApplication<Application>().applicationContext
+                val file: File = if(_reflexion.value) File(context.filesDir, "model_version.task") else File(context.filesDir, "model_version.bin")
+
+                if(!file.exists()) {
+                    Log.e("DiscussionViewModel", "Le fichier n'existe pas.")
+                    return@launch
+                }
 
                 val taskOptions = LlmInference.LlmInferenceOptions.builder()
-                    .setModelPath(if(_reflexion.value) "/data/local/tmp/llm/model_version.task" else "/data/local/tmp/llm/model_version.bin")
+                    .setModelPath(file.absolutePath)
                     .setMaxTopK(64)
                     .setMaxTokens(2048) //Nombre maximal de jetons (jetons d'entrée + jetons de sortie) gérés par le modèle.
                     .build()
@@ -85,6 +93,13 @@ class DiscussionViewModel(application: Application, val isLocal: Boolean = false
     fun clear() {
         _discussionRequest.value = _discussionRequest.value.copy(text = "")
         _discussionResult.value = null
+        client.close()
+        try {
+            _llmInference?.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        _llmInference = null
     }
 
     fun toggleStream() {
@@ -99,7 +114,12 @@ class DiscussionViewModel(application: Application, val isLocal: Boolean = false
 
     fun discussLocal(stream : Boolean) {
         if(_llmInference == null) {
-            return
+            setupModel()
+        }
+        try {
+            sleep(1000)
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
         }
 
         _discussionResult.value = null
