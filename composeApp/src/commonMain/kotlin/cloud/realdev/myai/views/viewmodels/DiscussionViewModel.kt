@@ -52,6 +52,7 @@ class DiscussionViewModel(application: Application, val isLocal: Boolean = false
     val sendingRequest: StateFlow<Boolean> = _sendingRequest.asStateFlow()
 
     private var _llmInference: LlmInference? = null
+    private var isModelLoading = false
 
 
     init {
@@ -59,23 +60,42 @@ class DiscussionViewModel(application: Application, val isLocal: Boolean = false
     }
 
     fun setupModel() {
-        if(isLocal) {
+        if(isLocal && !isModelLoading) {
+            isModelLoading = true
             viewModelScope.launch(Dispatchers.IO) {
+                // Fermer l'instance existante avant d'en créer une nouvelle
+                try {
+                    _llmInference?.close()
+                    _llmInference = null
+                    // Attendre un peu pour que le cache soit libéré
+                    kotlinx.coroutines.delay(500)
+                } catch (e: Exception) {
+                    Log.e("DiscussionViewModel", "Erreur lors de la fermeture du modèle", e)
+                }
+
                 val context = getApplication<Application>().applicationContext
                 val file: File = if(_reflexion.value) File(context.filesDir, "model_version.task") else File(context.filesDir, "model_version.bin")
 
                 if(!file.exists()) {
                     Log.e("DiscussionViewModel", "Le fichier n'existe pas.")
+                    isModelLoading = false
                     return@launch
                 }
 
-                val taskOptions = LlmInference.LlmInferenceOptions.builder()
-                    .setModelPath(file.absolutePath)
-                    .setMaxTopK(64)
-                    .setMaxTokens(2048) //Nombre maximal de jetons (jetons d'entrée + jetons de sortie) gérés par le modèle.
-                    .build()
+                try {
+                    val taskOptions = LlmInference.LlmInferenceOptions.builder()
+                        .setModelPath(file.absolutePath)
+                        .setMaxTopK(64)
+                        .setMaxTokens(2048) //Nombre maximal de jetons (jetons d'entrée + jetons de sortie) gérés par le modèle.
+                        .build()
 
-                _llmInference = LlmInference.createFromOptions(context, taskOptions)
+                    _llmInference = LlmInference.createFromOptions(context, taskOptions)
+                    Log.i("DiscussionViewModel", "Modèle chargé avec succès")
+                } catch (e: Exception) {
+                    Log.e("DiscussionViewModel", "Erreur lors du chargement du modèle", e)
+                } finally {
+                    isModelLoading = false
+                }
             }
         }
     }
