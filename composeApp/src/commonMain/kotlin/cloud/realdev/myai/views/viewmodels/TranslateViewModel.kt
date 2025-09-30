@@ -83,7 +83,7 @@ class TranslateViewModel: ViewModel() {
         try {
             viewModelScope.launch {
                 try {
-                    val httpStatement: HttpStatement = client.preparePost("http://192.168.1.25:9000/translate") {
+                    val httpStatement: HttpStatement = client.preparePost("http://192.168.1.25:9999/translate") {
                         contentType(ContentType.Application.Json)
                         accept(ContentType.Text.EventStream)
                         setBody(_translationRequest.value)

@@ -93,7 +93,6 @@ class DiscussionViewModel(application: Application, val isLocal: Boolean = false
     fun clear() {
         _discussionRequest.value = _discussionRequest.value.copy(text = "")
         _discussionResult.value = null
-        client.close()
         try {
             _llmInference?.close()
         } catch (e: Exception) {
@@ -156,7 +155,7 @@ class DiscussionViewModel(application: Application, val isLocal: Boolean = false
         try {
             viewModelScope.launch {
                 try {
-                    val httpStatement: HttpStatement = client.preparePost("http://192.168.1.25:9000/" + if(stream.value) "discuss" else "ask") {
+                    val httpStatement: HttpStatement = client.preparePost("http://192.168.1.25:9999/" + if(stream.value) "discuss" else "ask") {
                         contentType(ContentType.Application.Json)
                         accept(ContentType.Text.EventStream)
                         setBody(_discussionRequest.value)
@@ -184,8 +183,16 @@ class DiscussionViewModel(application: Application, val isLocal: Boolean = false
                                         continue
                                     }
 
-                                    if(json.type == "final_response") {
-                                        _discussionResult.value = _discussionResult.value?.copy(content = (_discussionResult.value?.content?:"") + json.content)
+                                    val isToolResult = json.type == "tool_result"
+                                    val toolName = json.tool_name
+                                    val isWeatherTool = toolName == "weather"
+                                    val toolResult = if(isWeatherTool && json.tool_output != null) json.tool_output.toString() else ""
+
+                                    val isAgentResponse = json.type == "agent_response"
+                                    val agentResponse = if(isAgentResponse && json.content != null) json.content else ""
+
+                                    if(json.type == "final_response" || isWeatherTool || isAgentResponse) {
+                                        _discussionResult.value = _discussionResult.value?.copy(content = (_discussionResult.value?.content?:"") + (if(isToolResult && toolResult != "null") toolResult else if(isAgentResponse && agentResponse != "null") agentResponse else if(json.content != "null") json.content else ""))
                                     } else {
                                         print("Not final response")
                                     }
@@ -197,7 +204,7 @@ class DiscussionViewModel(application: Application, val isLocal: Boolean = false
                     }
                     _sendingRequest.value = false
                 } catch (e: Exception) {
-                    print("Exception: " + e)
+                    Log.e("DiscussionViewModel","Edception", e)
                     onError()
                     _sendingRequest.value = false
                     return@launch
@@ -205,7 +212,7 @@ class DiscussionViewModel(application: Application, val isLocal: Boolean = false
 
             }
         } catch (e: Exception) {
-            print(e)
+            Log.e("DiscussionViewModel","Edception", e)
             onError()
             _sendingRequest.value = false
             return

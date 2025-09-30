@@ -50,12 +50,15 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation3.runtime.NavBackStack
 import cloud.realdev.myai.models.discuss.DiscussionResult
 import cloud.realdev.myai.models.navigation.Screen
 import cloud.realdev.myai.views.utils.clipboard.copyToClipboard
 import cloud.realdev.myai.views.viewmodels.DiscussionViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,8 +66,15 @@ fun ChatView(backStack: NavBackStack) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     val clipboardManager = LocalClipboardManager.current
+    val context = LocalContext.current
 
-    val viewModel = viewModel<DiscussionViewModel>()
+    val viewModel = viewModel<DiscussionViewModel>(
+        factory = viewModelFactory {
+            initializer {
+                DiscussionViewModel(context.applicationContext as android.app.Application)
+            }
+        }
+    )
     val discussionRequest by viewModel.discussionRequest.collectAsState()
     val discussionResult by viewModel.discussionResult.collectAsState()
     val sendingRequest by viewModel.sendingRequest.collectAsState()

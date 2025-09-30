@@ -57,7 +57,7 @@ class SpeakViewModel: ViewModel() {
         // CIO le gère bien par défaut avec le plugin WebSockets.
     }
 
-    val speakSocketUrl = "ws://192.168.1.25:9000/ws/speak" // L'URL de votre endpoint FastAPI
+    val speakSocketUrl = "ws://192.168.1.25:9999/ws/speak" // L'URL de votre endpoint FastAPI
 
 
     private var audioRecord: AudioRecord? = null
