@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cloud.realdev.myai.models.BASE_URL
 import cloud.realdev.myai.models.discuss.DiscussionRequest
 import cloud.realdev.myai.models.discuss.DiscussionResult
 import com.google.mediapipe.tasks.genai.llminference.LlmInference
@@ -175,7 +176,7 @@ class DiscussionViewModel(application: Application, val isLocal: Boolean = false
         try {
             viewModelScope.launch {
                 try {
-                    val httpStatement: HttpStatement = client.preparePost("http://192.168.1.25:9999/" + if(stream.value) "discuss" else "ask") {
+                    val httpStatement: HttpStatement = client.preparePost("$BASE_URL/" + if(stream.value) "discuss" else "ask") {
                         contentType(ContentType.Application.Json)
                         accept(ContentType.Text.EventStream)
                         setBody(_discussionRequest.value)

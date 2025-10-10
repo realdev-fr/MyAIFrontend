@@ -2,6 +2,7 @@ package cloud.realdev.myai.views.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cloud.realdev.myai.models.BASE_URL
 import cloud.realdev.myai.models.translate.Languages
 import cloud.realdev.myai.models.translate.TranslationResult
 import cloud.realdev.myai.models.translate.TranslationRequest
@@ -11,13 +12,10 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.accept
-import io.ktor.client.request.post
 import io.ktor.client.request.preparePost
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpStatement
-import io.ktor.client.statement.bodyAsChannel
 import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.ByteReadChannel
@@ -83,7 +81,7 @@ class TranslateViewModel: ViewModel() {
         try {
             viewModelScope.launch {
                 try {
-                    val httpStatement: HttpStatement = client.preparePost("http://192.168.1.25:9999/translate") {
+                    val httpStatement: HttpStatement = client.preparePost("$BASE_URL/translate") {
                         contentType(ContentType.Application.Json)
                         accept(ContentType.Text.EventStream)
                         setBody(_translationRequest.value)

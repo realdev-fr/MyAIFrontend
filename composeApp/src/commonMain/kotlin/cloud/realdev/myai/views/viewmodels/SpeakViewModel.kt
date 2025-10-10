@@ -8,6 +8,7 @@ import android.media.MediaRecorder
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cloud.realdev.myai.models.BASE_IP
 import cloud.realdev.myai.models.discuss.DiscussionRequest
 import cloud.realdev.myai.models.discuss.DiscussionResult
 import io.ktor.client.HttpClient
@@ -57,7 +58,7 @@ class SpeakViewModel: ViewModel() {
         // CIO le gère bien par défaut avec le plugin WebSockets.
     }
 
-    val speakSocketUrl = "ws://192.168.1.25:9999/ws/speak" // L'URL de votre endpoint FastAPI
+    val speakSocketUrl = "ws://$BASE_IP/ws/speak" // L'URL de votre endpoint FastAPI
 
 
     private var audioRecord: AudioRecord? = null
