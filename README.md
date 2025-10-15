@@ -207,13 +207,9 @@ adb shell run-as cloud.realdev.myai ls -lh files/
 
 Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou une pull request.
 
-## Licence
-
-[Ajouter votre licence ici]
-
 ## Contact
 
-[Ajouter vos informations de contact ici]
+Mail : realdev.company@gmail.com
 
 ---
 
