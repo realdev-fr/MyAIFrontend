@@ -1,4 +1,4 @@
-# MyAI
+# MyRealAI
 
 Application mobile d'intelligence artificielle multifonctionnelle développée avec Kotlin Multiplatform et Jetpack Compose.
 
@@ -8,7 +8,7 @@ Cette application fonctionne avec ce repository : https://github.com/realdev-fr/
 
 ## Description
 
-MyAI est une application mobile qui intègre plusieurs fonctionnalités d'intelligence artificielle, notamment la traduction, le chat conversationnel, l'IA locale embarquée et la reconnaissance vocale.
+MyRealAI est une application mobile qui intègre plusieurs fonctionnalités d'intelligence artificielle, notamment la traduction, le chat conversationnel, l'IA locale embarquée et la reconnaissance vocale.
 
 ## Fonctionnalités
 
@@ -127,7 +127,7 @@ total 5.3M
 ### Structure du projet
 
 ```
-MyAI/
+MyRealAI/
 ├── composeApp/
 │   ├── src/
 │   │   ├── androidMain/          # Code spécifique Android
@@ -194,7 +194,7 @@ L'application nécessite une clé API pour les fonctionnalités de chat en ligne
 
 ```bash
 # Voir les logs de l'application
-adb logcat | grep MyAI
+adb logcat | grep MyRealAI
 
 # Vérifier l'espace de stockage disponible
 adb shell df -h

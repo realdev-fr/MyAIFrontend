@@ -1,4 +1,4 @@
-rootProject.name = "MyAI"
+rootProject.name = "MyRealAI"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
